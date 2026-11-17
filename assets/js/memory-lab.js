@@ -765,20 +765,22 @@
       const lo = lane(a, 0), hi = lane(a, 1), word = hi * 256 + lo;
       let s = `<svg viewBox="0 0 600 300" role="img" aria-label="Hai chip 4K × 8 ghép song song thành 4K × 16">`;
       s += `<rect class="box" x="10" y="96" width="80" height="100"/><text class="lbl-big" x="50" y="152" text-anchor="middle">CPU</text>`;
+      s += `<text class="lbl-mono lbl-addr" x="50" y="178" text-anchor="middle">A = ${hex(a, 3)}</text>`;
       s += wire('w-addr', 'M90 120 H180 V60 H218 M180 120 V200 H218', true) + arrowHead(220, 60, 'r', 'dot') + arrowHead(220, 200, 'r', 'dot');
-      s += `<text class="lbl-mono lbl-addr" x="96" y="114">A11–A0 = ${hex(a, 3)}</text>`;
-      [[40, 'Chip 1', 'D7–D0', lo], [180, 'Chip 2', 'D15–D8', hi]].forEach(([y, nm, dn, v]) => {
+      s += `<text class="lbl-mono lbl-addr" x="135" y="111" text-anchor="middle">A11–A0</text>`;
+      [[40, 'Chip 1', 'D7–D0'], [180, 'Chip 2', 'D15–D8']].forEach(([y, nm, dn]) => {
         s += `<rect class="box box--addr" x="220" y="${y}" width="140" height="70" style="stroke-width:2.5"/><text class="lbl" x="290" y="${y + 28}" text-anchor="middle">${nm}</text><text class="lbl-sm" x="290" y="${y + 46}" text-anchor="middle">SRAM 4K × 8</text>`;
         s += `<circle cx="216" cy="${y + 58}" r="4" class="box"/>` + wire('w-ctrl', `M196 ${y + 58} H210`, true);
-        s += `<text class="lbl-mono lbl-ctrl" x="194" y="${y + 62}" text-anchor="end" style="font-size:10.5px"><tspan text-decoration="overline">CS</tspan> = 0</text>`;
-        s += wire('w-data', `M360 ${y + 30} H440`, true) + `<text class="lbl-mono lbl-data" x="368" y="${y + 22}">${dn} = ${hex(v, 2)}</text>`;
+        s += `<text class="lbl-sm lbl-ctrl" x="290" y="${y + 64}" text-anchor="middle"><tspan text-decoration="overline">CS</tspan> = 0</text>`;
+        s += wire('w-data', `M360 ${y + 30} H440`, true) + arrowHead(438, y + 30, 'r', 'lbl-data');
+        s += `<text class="lbl-mono lbl-data" x="400" y="${y + 20}" text-anchor="middle">${dn}</text>`;
       });
       s += `<rect class="box box--data" x="440" y="58" width="140" height="180"/><text class="lbl" x="510" y="84" text-anchor="middle">Bus dữ liệu 16 bit</text>`;
       s += `<text class="lbl-mono" x="510" y="130" text-anchor="middle">D15–D8: ${bin(hi, 8)}</text><text class="lbl-mono" x="510" y="160" text-anchor="middle">D7–D0: ${bin(lo, 8)}</text><text class="lbl-big" x="510" y="200" text-anchor="middle">${hex(word, 4)}</text>`;
       s += wire('w-data', 'M510 238 V280 H50 V198', true) + `<text class="lbl-sm" x="60" y="274">16 bit cùng lúc về CPU</text></svg>`;
       $('#fw-fig').innerHTML = s;
-      $('#fw-out').innerHTML = `<dl class="readout"><dt>Số chip</dt><dd>16 ÷ 8 = ${W.chips}</dd><dt>Đường địa chỉ</dt><dd>${W.addrLines} (nối chung)</dd><dt>Đường dữ liệu</dt><dd>${W.dataLines}</dd><dt>Số từ</dt><dd>${C.formatCount(W.totalWords)} (không đổi)</dd><dt>Dung lượng</dt><dd>${C.formatCount(W.totalWords)} × ${W.dataLines} bit = ${C.formatBytes(W.totalBytes)}</dd></dl>
-        <p class="note">Cả hai chip <b>cùng được chọn</b> (CS = 0) và nhận <b>cùng một địa chỉ</b>. Mỗi chip cấp 8 bit của từ 16 bit. Không cần bộ giải mã.</p>`;
+      $('#fw-out').innerHTML = `<dl class="readout"><dt>Số chip</dt><dd>16 ÷ 8 = ${W.chips}</dd><dt>Đường địa chỉ</dt><dd>${W.addrLines} (nối chung)</dd><dt>Đường dữ liệu</dt><dd>${W.dataLines}</dd><dt>Số từ</dt><dd>${C.formatCount(W.totalWords)} (không đổi)</dd><dt>Dung lượng</dt><dd>${C.formatCount(W.totalWords)} × ${W.dataLines} bit = ${C.formatBytes(W.totalBytes)}</dd><dt>Chip 2 → D15–D8</dt><dd>${hex(hi, 2)}</dd><dt>Chip 1 → D7–D0</dt><dd>${hex(lo, 2)}</dd><dt>Từ ghép tại A = ${hex(a, 3)}</dt><dd>${hex(word, 4)}</dd></dl>
+        <p class="note">Cả hai chip <b>cùng được chọn</b> (CS = 0) và nhận <b>cùng một địa chỉ</b>. Chip 2 cấp byte cao D15–D8; chip 1 cấp byte thấp D7–D0. Không cần bộ giải mã.</p>`;
     }
     $('#fw-addr').addEventListener('input', drawW); drawW();
     // --- So sánh

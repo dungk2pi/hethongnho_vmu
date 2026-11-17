@@ -31,7 +31,7 @@ Ngoài phạm vi 23–52 nhưng thấy khi đọc: tiêu đề slide 17 ghi “R
 - **So sánh RAM (phần I):** hoạt ảnh nạp D1–D4 vào các thanh RAM; giả định 1 × 16 GB chạy single-channel (1 phần/chu kỳ) và 2 × 8 GB chạy dual-channel trên nền tảng hỗ trợ (2 phần/chu kỳ). Vì vậy dual-channel hoàn tất workload minh họa ở CK2 thay vì CK4; đây là gấp đôi băng thông lý thuyết trong mô hình, không dự đoán mức tăng tốc ứng dụng.
 - **74LS138** được mô phỏng ở mức logic theo bảng chân lý slide 34, không mô phỏng chân vật lý.
 - **Phòng thử ánh xạ** dùng mô hình thu nhỏ: 16 Block × 4 từ (địa chỉ 6 bit), cache 4 hoặc 8 Line.
-- **Ví dụ 4K × 8 → 4K × 16** là ví dụ bổ sung, có nhãn “không phải bài giải cụ thể trong slide”.
+- **Ví dụ 4K × 8 → 4K × 16** là ví dụ bổ sung, có nhãn “không phải bài giải cụ thể trong slide”. Hai chip cùng nhận địa chỉ và cùng được chọn; chip 2 cấp byte cao D15–D8, chip 1 cấp byte thấp D7–D0, ghép thành từ 16 bit.
 
 ## 3. Kiến trúc mã
 
