@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tổ chức chip nhớ | Phòng thí nghiệm Bộ nhớ</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="lab">
+  <aside class="rail" aria-label="Điều hướng bài học">
+    <a class="rail__home" href="index.html">‹ Trang chính</a>
+    <div class="rail__title">Tổ chức chip nhớ<small>Slide 23–34, Chương 3</small></div>
+    <button type="button" class="btn menu-btn" aria-expanded="false" aria-controls="mem-nav">Mục lục</button>
+    <nav id="mem-nav">
+      <a href="#sec-a"><span class="code">A</span><span>Ô nhớ, địa chỉ, từ nhớ</span><span class="sl">Slide 23–24</span></a>
+      <a href="#sec-b"><span class="code">B</span><span>SRAM một chiều</span><span class="sl">Slide 25</span></a>
+      <a href="#sec-c"><span class="code">C</span><span>DRAM hai chiều</span><span class="sl">Slide 26–27</span></a>
+      <a href="#sec-d"><span class="code">D</span><span>Dồn kênh địa chỉ RAS/CAS</span><span class="sl">Slide 28</span></a>
+      <a href="#sec-e"><span class="code">E</span><span>Chân tín hiệu CS, OE, WE</span><span class="sl">Slide 29</span></a>
+      <a href="#sec-f"><span class="code">F</span><span>Thiết kế module nhớ</span><span class="sl">Slide 30–32</span></a>
+      <a href="#sec-g"><span class="code">G</span><span>Bộ giải mã</span><span class="sl">Slide 33–34</span></a>
+      <a href="#sec-h"><span class="code">H</span><span>Bài tập và luyện tập</span><span class="sl">Slide 30–32</span></a>
+      <a href="#sec-i"><span class="code">I</span><span>DRAM và kênh bộ nhớ</span><span class="sl">Mở rộng</span></a>
+    </nav>
+    <div class="legend" aria-label="Chú giải đường tín hiệu">
+      <div><svg width="34" height="8"><path class="w w-addr" d="M2 4H32"/></svg>Bus địa chỉ</div>
+      <div><svg width="34" height="8"><path class="w w-data" d="M2 4H32"/></svg>Bus dữ liệu</div>
+      <div><svg width="34" height="8"><path class="w w-ctrl" d="M2 4H32"/></svg>Tín hiệu điều khiển</div>
+    </div>
+    <div class="rail__switch">Bài tiếp theo: <a href="cache-mapping.html">Bộ nhớ Cache</a></div>
+  </aside>
+
+  <main class="work" id="main">
+
+    <!-- ============ A. Ô nhớ, địa chỉ ============ -->
+    <section class="section" id="sec-a" aria-labelledby="ha">
+      <div class="sheet">
+        <header class="sheet__head">
+          <div class="sheet__title"><h2 id="ha">Ô nhớ, địa chỉ và từ nhớ</h2>
+            <p>Chọn một ô, xem địa chỉ của nó, rồi đọc hoặc ghi dữ liệu qua ba đường bus.</p></div>
+          <div class="titleblock"><div><span>Tờ</span><b>A</b></div><div><span>Slide</span><b>23–24</b></div><div><span>Mô hình</span><b>16 × 8 bit</b></div><div><span>Địa chỉ</span><b>4 bit</b></div></div>
+        </header>
+        <div class="sheet__body">
+          <div class="stage stage--fig">
+            <div class="figure figure--grid" id="a-fig"></div>
+            <div>
+              <div class="zone"><h3>Gom ô nhớ thành từ nhớ</h3>
+                <div id="a-word"></div>
+                <p class="caption">Mỗi ô nhớ có một địa chỉ và chứa 8 bit. Một từ nhớ có thể dài 8, 16, 32 bit… và chiếm một hoặc nhiều ô liên tiếp.</p>
+              </div>
+              <div class="zone"><h3>Thao tác</h3>
+                <div class="controls">
+                  <label class="field field--sm">Địa chỉ<input id="a-addr" value="0x5" aria-describedby="a-help"></label>
+                  <label class="field field--md">Dữ liệu ghi (hex)<input id="a-data" value="0x3C"></label>
+                </div>
+                <p class="caption" id="a-help">Bấm vào một hàng trên hình hoặc gõ địa chỉ (0x0–0xF). Bấm từng bit trong hàng đang chọn để lật bit.</p>
+                <div class="controls"><button type="button" class="btn btn--solid" id="a-read">Đọc</button><button type="button" class="btn" id="a-write">Ghi</button></div>
+                <dl class="readout" id="a-out" style="margin-top:10px"></dl>
+                <div id="a-status" aria-live="polite"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ B. SRAM một chiều ============ -->
+    <section class="section" id="sec-b" aria-labelledby="hb" hidden>
+      <div class="sheet">
+        <header class="sheet__head">
+          <div class="sheet__title"><h2 id="hb">Tổ chức một chiều: chip SRAM 2<sup>n</sup> × m bit</h2>
+            <p>Nhập địa chỉ, chạy từng bước và theo dõi: bộ giải mã chọn đúng một từ nhớ, dữ liệu đi qua bộ đệm.</p></div>
+          <div class="titleblock"><div><span>Tờ</span><b>B</b></div><div><span>Slide</span><b>25</b></div><div><span>Chip</span><b id="b-tb">4K × 8</b></div><div><span>Dung lượng</span><b id="b-tb2">4KB</b></div></div>
+        </header>
+        <div class="sheet__body">
+          <div class="controls">
+            <label class="field">Số đường địa chỉ n<select id="b-n"></select></label>
+            <label class="field">Độ dài từ m<select id="b-m"><option>1</option><option>4</option><option selected>8</option><option>16</option></select></label>
+            <label class="field field--md">Địa chỉ<input id="b-addr" value="0x2A5"></label>
+            <div class="field">Thao tác<div id="b-mode"></div></div>
+            <label class="field field--md">Dữ liệu ghi<input id="b-data" value="0xA7"></label>
+          </div>
+          <div class="kv" id="b-kv" style="margin:12px 0 6px"></div>
+          <div class="stage stage--split">
+            <div class="figure figure--grid" id="b-fig"></div>
+            <div><div id="b-player"></div></div>
+          </div>
+          <div class="zone zone--quiet" style="margin-top:14px"><h3>Nội dung bộ nhớ</h3>
+            <div class="controls"><label class="field field--md">Tìm địa chỉ<input id="b-find" placeholder="0x2A5"></label><button type="button" class="btn" id="b-go">Đến trang</button></div>
+            <div class="tbl-wrap" id="b-table" style="margin-top:8px"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ C. DRAM hai chiều ============ -->
+    <section class="section" id="sec-c" aria-labelledby="hc" hidden>
+      <div class="sheet">
+        <header class="sheet__head">
+          <div class="sheet__title"><h2 id="hc">Tổ chức hai chiều: ma trận hàng × cột</h2>
+            <p>Bấm vào ma trận hoặc nhập số hàng, số cột. Mỗi giao điểm là một từ nhớ.</p></div>
+          <div class="titleblock"><div><span>Tờ</span><b>C</b></div><div><span>Slide</span><b>26–27</b></div><div><span>Ma trận</span><b id="c-tb">128 × 128</b></div><div><span>Địa chỉ</span><b id="c-tb2">14 bit</b></div></div>
+        </header>
+        <div class="sheet__body">
+          <div class="controls">
+            <label class="field">n1 (bit hàng)<select id="c-n1"></select></label>
+            <label class="field">n2 (bit cột)<select id="c-n2"></select></label>
+            <label class="field">m (bit/từ)<select id="c-m"><option>1</option><option>4</option><option selected>8</option></select></label>
+            <label class="field field--sm">Hàng<input id="c-row" value="37"></label>
+            <label class="field field--sm">Cột<input id="c-col" value="90"></label>
+            <label class="field field--md">Địa chỉ logic<input id="c-addr"></label>
+          </div>
+          <div class="stage stage--split" style="margin-top:12px">
+            <div class="figure" id="c-fig"></div>
+            <div>
+              <div id="c-bits"></div>
+              <div id="c-player"></div>
+            </div>
+          </div>
+          <div class="zone zone--quiet" style="margin-top:12px"><h3>Tổng quát hóa</h3><div id="c-general"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ D. Dồn kênh RAS/CAS ============ -->
+    <section class="section" id="sec-d" aria-labelledby="hd" hidden>
+      <div class="sheet">
+        <header class="sheet__head">
+          <div class="sheet__title"><h2 id="hd">Dồn kênh địa chỉ: 7 chân, 2 pha, 14 bit</h2>
+            <p>Cùng một bus 7 đường chở địa chỉ hàng ở pha 1 và địa chỉ cột ở pha 2. RAS và CAS cho chip biết nên chốt nửa nào.</p></div>
+          <div class="titleblock"><div><span>Tờ</span><b>D</b></div><div><span>Slide</span><b>28</b></div><div><span>Chân địa chỉ</span><b>7</b></div><div><span>Bit logic</span><b>14</b></div></div>
+        </header>
+        <div class="sheet__body">
+          <div class="controls">
+            <label class="field field--sm">Hàng (0–127)<input id="d-row" value="45"></label>
+            <label class="field field--sm">Cột (0–127)<input id="d-col" value="102"></label>
+          </div>
+          <div class="stage stage--split" style="margin-top:12px">
+            <div>
+              <div class="figure figure--grid" id="d-fig"></div>
+              <div class="figure" id="d-timing" style="margin-top:10px"></div>
+            </div>
+            <div id="d-player"></div>
+          </div>
+          <div class="stage stage--split-wide" style="margin-top:14px">
+            <div class="zone"><h3>So sánh số chân địa chỉ</h3><div class="figure" id="d-compare"></div></div>
+            <div class="zone"><h3>Công thức tổng quát</h3><div id="d-general"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ E. Chân tín hiệu ============ -->
+    <section class="section" id="sec-e" aria-labelledby="he" hidden>
+      <div class="sheet">
+        <header class="sheet__head">
+          <div class="sheet__title"><h2 id="he">Đóng vỏ chip: địa chỉ, dữ liệu và ba tín hiệu điều khiển</h2>
+            <p>Gạt công tắc CS, OE, WE rồi bấm Thực hiện. Cả ba tín hiệu đều tích cực ở mức 0.</p></div>
+          <div class="titleblock"><div><span>Tờ</span><b>E</b></div><div><span>Slide</span><b>29</b></div><div><span>Chip mẫu</span><b>16 × 8</b></div><div><span>Mức tích cực</span><b>0</b></div></div>
+        </header>
+        <div class="sheet__body">
+          <div class="stage stage--split-wide">
+            <div class="figure figure--grid" id="e-fig"></div>
+            <div>
+              <div class="zone"><h3>Công tắc điều khiển</h3><div class="dips" id="e-dips"></div></div>
+              <div class="zone" style="margin-top:12px"><h3>Địa chỉ và dữ liệu</h3>
+                <div class="controls">
+                  <label class="field field--sm">Địa chỉ (0–15)<input id="e-addr" value="6"></label>
+                  <label class="field field--sm">Dữ liệu ghi<input id="e-data" value="0x5A"></label>
+                  <button type="button" class="btn btn--solid" id="e-run">Thực hiện</button>
+                </div>
+                <div id="e-status" aria-live="polite"></div>
+              </div>
+            </div>
+          </div>
+          <div class="stage stage--split-wide" style="margin-top:14px">
+            <div class="zone zone--quiet"><h3>Bảng điều khiển (mô hình đơn giản)</h3><div class="tbl-wrap" id="e-truth"></div></div>
+            <div class="zone zone--quiet"><h3>Nội dung 16 từ nhớ</h3><div class="tbl-wrap" id="e-mem"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ F. Thiết kế module ============ -->
+    <section class="section" id="sec-f" aria-labelledby="hf" hidden>
+      <div class="sheet">
+        <header class="sheet__head">
+          <div class="sheet__title"><h2 id="hf">Thiết kế module nhớ từ nhiều chip</h2>
+            <p>Hai cách ghép chip: thêm từ nhớ (cần bộ giải mã chọn chip) hoặc thêm bit cho mỗi từ (các chip chạy song song).</p></div>
+          <div class="titleblock"><div><span>Tờ</span><b>F</b></div><div><span>Slide</span><b>30–32</b></div><div><span>Chip</span><b>SRAM 4K × 8</b></div><div><span>Module</span><b id="f-tb">8KB</b></div></div>
+        </header>
+        <div class="sheet__body">
+          <div class="tabs" id="f-tabs">
+            <button type="button" data-tab="f-words">Tăng số lượng từ nhớ</button>
+            <button type="button" data-tab="f-width">Tăng độ dài từ nhớ</button>
+            <button type="button" data-tab="f-cmp">So sánh hai cách</button>
+          </div>
+          <div id="f-words">
+            <div class="controls">
+              <label class="field">Module cần thiết kế<select id="f-target"><option value="8192" selected>8K × 8 = 8KB (đề slide 31)</option><option value="16384">16K × 8 = 16KB</option><option value="32768">32K × 8 = 32KB</option></select></label>
+              <label class="field field--md">Địa chỉ CPU phát ra<input id="f-addr" value="0x1234"></label>
+              <button type="button" class="btn" data-q="0x0ABC">Thử 0x0ABC</button>
+              <button type="button" class="btn" data-q="0x1ABC">Thử 0x1ABC</button>
+            </div>
+            <div class="kv" id="f-kv" style="margin:12px 0 4px"></div>
+            <div class="stage stage--split" style="margin-top:8px">
+              <div class="figure figure--grid" id="f-fig"></div>
+              <div><div id="f-player"></div></div>
+            </div>
+            <div class="zone zone--quiet" style="margin-top:12px"><h3>Vùng địa chỉ của từng chip</h3><div class="tbl-wrap" id="f-ranges"></div></div>
+          </div>
+          <div id="f-width" hidden>
+            <span class="supp">Ví dụ minh họa bổ sung, không phải bài giải cụ thể trong slide</span>
+            <div class="controls">
+              <label class="field field--md">Địa chỉ (0x000–0xFFF)<input id="fw-addr" value="0x3A0"></label>
+            </div>
+            <div class="stage stage--split" style="margin-top:12px">
+              <div class="figure figure--grid" id="fw-fig"></div>
+              <div id="fw-out"></div>
+            </div>
+          </div>
+          <div id="f-cmp" hidden><div class="tbl-wrap" id="f-cmp-table"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ G. Bộ giải mã ============ -->
+    <section class="section" id="sec-g" aria-labelledby="hg" hidden>
+      <div class="sheet">
+        <header class="sheet__head">
+          <div class="sheet__title"><h2 id="hg">Phòng thử bộ giải mã</h2>
+            <p>Gạt các ngõ vào và xem ngõ ra nào được chọn. Hình và bảng chân lý theo đúng slide 33–34.</p></div>
+          <div class="titleblock"><div><span>Tờ</span><b>G</b></div><div><span>Slide</span><b>33–34</b></div><div><span>Ngõ ra</span><b>tích cực 0</b></div><div><span>IC</span><b>74LS138</b></div></div>
+        </header>
+        <div class="sheet__body">
+          <div class="tabs" id="g-tabs">
+            <button type="button" data-tab="g-12">1 → 2</button>
+            <button type="button" data-tab="g-24">2 → 4</button>
+            <button type="button" data-tab="g-138">3 → 8 (74LS138)</button>
+            <button type="button" data-tab="g-21">“2 → 1” trong slide</button>
+            <button type="button" data-tab="g-n">Tổng quát n → 2<sup>n</sup></button>
+          </div>
+          <div id="g-12"></div><div id="g-24" hidden></div><div id="g-138" hidden></div><div id="g-21" hidden></div><div id="g-n" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ H. Bài tập ============ -->
+    <section class="section" id="sec-h" aria-labelledby="hh" hidden>
+      <div class="sheet">
+        <header class="sheet__head">
+          <div class="sheet__title"><h2 id="hh">Bài tập thiết kế module nhớ</h2>
+            <p>Làm theo từng bước bài của slide 31–32, sau đó tự giải các đề khác.</p></div>
+          <div class="titleblock"><div><span>Tờ</span><b>H</b></div><div><span>Slide</span><b>30–32</b></div><div><span>Dạng</span><b>Thiết kế</b></div><div><span>Đề</span><b>5 + ngẫu nhiên</b></div></div>
+        </header>
+        <div class="sheet__body">
+          <div class="tabs" id="h-tabs">
+            <button type="button" data-tab="h-guided">Lời giải từng bước (slide 31–32)</button>
+            <button type="button" data-tab="h-practice">Tự luyện</button>
+          </div>
+          <div id="h-guided"></div>
+          <div id="h-practice" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ I. DRAM và băng thông kênh nhớ ============ -->
+    <section class="section" id="sec-i" aria-labelledby="hi" hidden>
+      <div class="sheet">
+        <header class="sheet__head">
+          <div class="sheet__title"><h2 id="hi">DRAM, tính bay hơi và kênh bộ nhớ</h2>
+            <p>Quan sát cách tụ điện biểu diễn bit, vì sao mất điện làm mất dữ liệu, và cách hai kênh có thể chuyển dữ liệu song song.</p></div>
+          <div class="titleblock"><div><span>Tờ</span><b>I</b></div><div><span>Nội dung</span><b>Mở rộng</b></div><div><span>Dung lượng</span><b>16 GB</b></div><div><span>So sánh</span><b>1 kênh / 2 kênh</b></div></div>
+        </header>
+        <div class="sheet__body">
+          <div class="stage stage--split-wide">
+            <div class="zone">
+              <h3>Ô DRAM: tụ điện biểu diễn bit</h3>
+              <div class="figure figure--grid" id="i-dram-fig"></div>
+              <div class="controls" style="margin-top:10px">
+                <button type="button" class="btn" id="i-write-0">Ghi bit 0</button>
+                <button type="button" class="btn" id="i-write-1">Ghi bit 1</button>
+                <button type="button" class="btn" id="i-leak">Mô phỏng tụ rò</button>
+                <button type="button" class="btn" id="i-refresh">Làm tươi</button>
+                <button type="button" class="btn btn--solid" id="i-power">Ngắt nguồn</button>
+              </div>
+              <div id="i-dram-state" aria-live="polite"></div>
+            </div>
+            <div class="zone">
+              <h3>Nguyên lý lưu bit</h3>
+              <div class="calc">
+                <p><b>Bit 1:</b> tụ có điện tích. <b>Bit 0:</b> tụ gần như không tích điện.</p>
+                <p>Tụ điện rò điện tích theo thời gian, nên bộ điều khiển phải định kỳ đọc và làm tươi lại dữ liệu.</p>
+                <p>DRAM là bộ nhớ <b>bay hơi</b>: khi mất nguồn, điện tích không còn được duy trì và dữ liệu mất.</p>
+              </div>
+              <p class="note">Điện áp và ngưỡng trên hình đã chuẩn hóa để dễ quan sát, không phải trị số vật lý của một chip cụ thể. Khi cấp nguồn lại, dữ liệu đã mất không tự khôi phục.</p>
+            </div>
+          </div>
+
+          <div class="zone zone--quiet" style="margin-top:18px">
+            <h3>So sánh 1 × 16 GB với 2 × 8 GB</h3>
+            <p>Cùng dung lượng 16 GB. Theo dõi các gói D1–D4 được nạp vào thanh RAM: mỗi chu kỳ, 1×16 GB chuyển 1 gói; 2×8 GB chạy dual-channel chuyển 2 gói đồng thời.</p>
+            <div class="figure figure--grid figure--scroll figure--ram-transfer" id="i-ram-fig"></div>
+            <div id="i-ram-player"></div>
+            <div id="i-ram-summary" aria-live="polite"></div>
+            <p class="note"><b>Kết quả của workload minh họa:</b> cùng 4 gói dữ liệu, 2×8 GB hoàn tất ở CK2, còn 1×16 GB hoàn tất ở CK4 — tức một nửa số chu kỳ (gấp đôi băng thông lý thuyết trong mô hình). Đây không đảm bảo ứng dụng thực tế nhanh gấp đôi. So sánh giả định 1×16 GB chạy single-channel; hai thanh 8 GB được lắp đúng khe và nền tảng hỗ trợ dual-channel.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <aside class="panel" aria-label="Giải thích" aria-live="polite"></aside>
+</div>
+<script src="assets/js/calc.js"></script>
+<script src="assets/js/common.js"></script>
+<script src="assets/js/memory-lab.js"></script>
+</body>
+</html>

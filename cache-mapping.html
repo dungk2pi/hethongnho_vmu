@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bộ nhớ Cache và ánh xạ | Phòng thí nghiệm Bộ nhớ</title>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<div class="lab">
+  <aside class="rail" aria-label="Điều hướng bài học">
+    <a class="rail__home" href="index.html">‹ Trang chính</a>
+    <div class="rail__title">Bộ nhớ Cache<small>Slide 35–52, Chương 3</small></div>
+    <button type="button" class="btn menu-btn" aria-expanded="false" aria-controls="cache-nav">Mục lục</button>
+    <nav id="cache-nav">
+      <a href="#sec-a"><span class="code">A</span><span>Cache là gì</span><span class="sl">Slide 35</span></a>
+      <a href="#sec-b"><span class="code">B</span><span>Vì sao cache có ích</span><span class="sl">Slide 36</span></a>
+      <a href="#sec-c"><span class="code">C</span><span>Tính cục bộ</span><span class="sl">Slide 37</span></a>
+      <a href="#sec-d"><span class="code">D</span><span>Quy trình truy cập</span><span class="sl">Slide 38–39</span></a>
+      <a href="#sec-e"><span class="code">E</span><span>Block, Line, Tag</span><span class="sl">Slide 40–41</span></a>
+      <a href="#sec-f"><span class="code">F</span><span>Ánh xạ trực tiếp</span><span class="sl">Slide 42–44</span></a>
+      <a href="#sec-g"><span class="code">G</span><span>Ánh xạ hoàn toàn</span><span class="sl">Slide 45–46</span></a>
+      <a href="#sec-h"><span class="code">H</span><span>Ánh xạ tập hợp</span><span class="sl">Slide 47–48</span></a>
+      <a href="#sec-i"><span class="code">I</span><span>Thước đo địa chỉ 32 bit</span><span class="sl">Slide 43, 49–52</span></a>
+      <a href="#sec-j"><span class="code">J</span><span>Bài tập tính trường địa chỉ</span><span class="sl">Slide 43, 49–52</span></a>
+      <a href="#sec-k"><span class="code">K</span><span>Tự luyện</span><span class="sl">Slide 40–52</span></a>
+    </nav>
+    <div class="legend" aria-label="Chú giải">
+      <div><svg width="34" height="10"><rect x="2" y="1" width="30" height="8" fill="#B9C6CC"/></svg>Tag</div>
+      <div><svg width="34" height="10"><rect x="2" y="1" width="30" height="8" fill="#7FB0CB"/></svg>Line / Set</div>
+      <div><svg width="34" height="10"><rect x="2" y="1" width="30" height="8" fill="#6DBBA8"/></svg>Offset (Word)</div>
+    </div>
+    <div class="rail__switch">Bài trước: <a href="memory-organization.html">Tổ chức chip nhớ</a></div>
+  </aside>
+
+  <main class="work" id="main">
+
+    <section class="section" id="sec-a" aria-labelledby="ha">
+      <div class="sheet">
+        <header class="sheet__head">
+          <div class="sheet__title"><h2 id="ha">Cache: tầng nhớ nhỏ và nhanh giữa CPU và bộ nhớ chính</h2>
+            <p>Đổi giữa hệ thống cũ và hệ thống hiện đại để thấy cache nằm ở đâu.</p></div>
+          <div class="titleblock"><div><span>Tờ</span><b>A</b></div><div><span>Slide</span><b>35</b></div><div><span>Vị trí</span><b>CPU ↔ RAM</b></div><div><span>Số liệu</span><b>tương đối</b></div></div>
+        </header>
+        <div class="sheet__body">
+          <div class="controls"><div class="field">Kiểu hệ thống<div id="a-mode"></div></div></div>
+          <div class="figure figure--grid" id="a-fig" style="margin-top:12px"></div>
+          <div class="stage stage--split-wide" style="margin-top:14px" id="a-facts"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="sec-b" aria-labelledby="hb" hidden>
+      <div class="sheet">
+        <header class="sheet__head">
+          <div class="sheet__title"><h2 id="hb">Có cache và không có cache</h2>
+            <p>Đổi số lần truy cập và tỷ lệ hit, rồi so sánh tổng thời gian. Thời gian ở đây là số minh họa.</p></div>
+          <div class="titleblock"><div><span>Tờ</span><b>B</b></div><div><span>Slide</span><b>36</b></div><div><span>Đơn vị</span><b>tùy chọn</b></div><div><span>Số liệu</span><b>minh họa</b></div></div>
+        </header>
+        <div class="sheet__body">
+          <div class="controls">
+            <label class="field field--sm">Số lần truy cập<input id="b-n" value="40"></label>
+            <label class="field">Tỷ lệ hit: <b id="b-hv">80%</b><input id="b-h" type="range" min="0" max="100" value="80" style="height:36px;width:180px"></label>
+            <label class="field field--sm">t cache<input id="b-tc" value="1"></label>
+            <label class="field field--sm">t bộ nhớ chính<input id="b-tm" value="10"></label>
+          </div>
+          <div class="figure" id="b-fig" style="margin-top:14px"></div>
+          <div class="stage stage--split-wide" style="margin-top:14px" id="b-cost"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="sec-c" aria-labelledby="hc" hidden>
+      <div class="sheet">
+        <header class="sheet__head">
+          <div class="sheet__title"><h2 id="hc">Tính cục bộ: vì sao cache đoán đúng</h2>
+            <p>Hai hiện tượng khác nhau: dùng dữ liệu ở gần (không gian) và dùng lại dữ liệu cũ (thời gian).</p></div>
+          <div class="titleblock"><div><span>Tờ</span><b>C</b></div><div><span>Slide</span><b>37</b></div><div><span>Cache mẫu</span><b>2 Block</b></div><div><span>Block</span><b>4 từ</b></div></div>
+        </header>
+        <div class="sheet__body">
+          <div class="tabs" id="c-tabs"><button type="button" data-tab="c-space">Cục bộ về không gian</button><button type="button" data-tab="c-time">Cục bộ về thời gian</button></div>
+          <div id="c-space"><div class="figure" id="cs-fig"></div><div id="cs-player"></div><div id="cs-out"></div></div>
+          <div id="c-time" hidden>
+            <div class="controls"><label class="field" style="flex:1">Chuỗi truy cập (cách nhau bởi dấu cách)<input id="ct-seq" value="A B A A B C A B" style="width:100%"></label><button type="button" class="btn" id="ct-load">Nạp chuỗi</button></div>
+            <div class="figure" id="ct-fig" style="margin-top:12px"></div><div id="ct-player"></div><div id="ct-out"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="sec-d" aria-labelledby="hd" hidden>
+      <div class="sheet">
+        <header class="sheet__head">
+          <div class="sheet__title"><h2 id="hd">Một lần truy cập đi qua cache</h2>
+            <p>CPU chỉ hỏi một từ. Khi trượt, cache phải lấy cả Block chứa từ đó từ bộ nhớ chính.</p></div>
+          <div class="titleblock"><div><span>Tờ</span><b>D</b></div><div><span>Slide</span><b>38–39</b></div><div><span>Cache mẫu</span><b>4 Line</b></div><div><span>Block</span><b>4 từ</b></div></div>
+        </header>
+        <div class="sheet__body">
+          <div class="controls">
+            <label class="field field--sm">Địa chỉ từ (0–63)<input id="d-addr" value="13"></label>
+            <button type="button" class="btn btn--solid" id="d-go">Truy cập</button>
+            <button type="button" class="btn" id="d-seq">Chạy chuỗi 13, 14, 15, 30, 13</button>
+            <button type="button" class="btn btn--ghost" id="d-reset">Xóa cache</button>
+          </div>
+          <div class="stage stage--split" style="margin-top:12px">
+            <div><div class="figure figure--grid" id="d-fig"></div><div class="figure" id="d-flow" style="margin-top:10px"></div></div>
+            <div><div id="d-player"></div><div id="d-stats" style="margin-top:12px"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="sec-e" aria-labelledby="he" hidden>
+      <div class="sheet">
+        <header class="sheet__head">
+          <div class="sheet__title"><h2 id="he">Block ở bộ nhớ chính, Line ở cache, Tag để nhận diện</h2>
+            <p>Đổi kích thước để thấy M = 2<sup>n</sup>/K thay đổi. Chọn một Block rồi nạp vào một Line.</p></div>
+          <div class="titleblock"><div><span>Tờ</span><b>E</b></div><div><span>Slide</span><b>40–41</b></div><div><span>Block</span><b id="e-tb">M = 64</b></div><div><span>Line</span><b id="e-tb2">m = 8</b></div></div>
+        </header>
+        <div class="sheet__body">
+          <div class="controls">
+            <label class="field">n (bit địa chỉ)<select id="e-n"><option>6</option><option selected>8</option><option>10</option></select></label>
+            <label class="field">K (từ/Block)<select id="e-k"><option>2</option><option selected>4</option><option>8</option></select></label>
+            <label class="field">m (số Line)<select id="e-m"><option>4</option><option selected>8</option></select></label>
+            <label class="field field--sm">Block j<input id="e-j" value="21"></label>
+            <label class="field">Nạp vào Line<select id="e-line"></select></label>
+            <button type="button" class="btn btn--solid" id="e-load">Nạp Block</button>
+          </div>
+          <div class="kv" id="e-kv" style="margin:12px 0 4px"></div>
+          <div class="figure figure--grid" id="e-fig" style="margin-top:8px"></div>
+          <div class="zone zone--quiet" style="margin-top:14px"><h3>Ba kỹ thuật ánh xạ (slide 41)</h3><div class="tbl-wrap" id="e-map"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="sec-f" aria-labelledby="hf" hidden>
+      <div class="sheet">
+        <header class="sheet__head">
+          <div class="sheet__title"><h2 id="hf">Ánh xạ trực tiếp: mỗi Block chỉ có một chỗ</h2>
+            <p>Bấm một Block để thấy Line duy nhất của nó, rồi truy cập. Thử chuỗi B0 → B4 → B0 để thấy xung đột.</p></div>
+          <div class="titleblock"><div><span>Tờ</span><b>F</b></div><div><span>Slide</span><b>42–44</b></div><div><span>Quy tắc</span><b>j mod m</b></div><div><span>Mô hình</span><b>16 Block</b></div></div>
+        </header>
+        <div class="sheet__body" id="f-body"></div>
+      </div>
+    </section>
+
+    <section class="section" id="sec-g" aria-labelledby="hg" hidden>
+      <div class="sheet">
+        <header class="sheet__head">
+          <div class="sheet__title"><h2 id="hg">Ánh xạ hoàn toàn: Block vào Line nào cũng được</h2>
+            <p>Bấm một Line trống để chọn chỗ nạp. Khi tìm kiếm, mọi Tag được so sánh cùng lúc.</p></div>
+          <div class="titleblock"><div><span>Tờ</span><b>G</b></div><div><span>Slide</span><b>45–46</b></div><div><span>Trường</span><b>Tag + Word</b></div><div><span>Thay thế</span><b>FIFO*</b></div></div>
+        </header>
+        <div class="sheet__body" id="g-body"></div>
+      </div>
+    </section>
+
+    <section class="section" id="sec-h" aria-labelledby="hh" hidden>
+      <div class="sheet">
+        <header class="sheet__head">
+          <div class="sheet__title"><h2 id="hh">Ánh xạ tập hợp: cố định Set, tự do trong Set</h2>
+            <p>Đổi số đường (way). Block j vào Set (j mod số Set), rồi vào bất kỳ Line trống nào trong Set đó.</p></div>
+          <div class="titleblock"><div><span>Tờ</span><b>H</b></div><div><span>Slide</span><b>47–48</b></div><div><span>Cache</span><b>8 Line</b></div><div><span>Thay thế</span><b>FIFO*</b></div></div>
+        </header>
+        <div class="sheet__body" id="h-body"></div>
+      </div>
+    </section>
+
+    <section class="section" id="sec-i" aria-labelledby="hi" hidden>
+      <div class="sheet">
+        <header class="sheet__head">
+          <div class="sheet__title"><h2 id="hi">Thước đo địa chỉ</h2>
+            <p>Nhập một địa chỉ thập phân hoặc hex. Thước tách các bit thành Tag, Line/Set và Offset, rồi chỉ ra Line hoặc Set được chọn.</p></div>
+          <div class="titleblock"><div><span>Tờ</span><b>I</b></div><div><span>Slide</span><b>43, 49–52</b></div><div><span>Địa chỉ</span><b id="i-tb">32 bit</b></div><div><span>Đơn vị</span><b>byte</b></div></div>
+        </header>
+        <div class="sheet__body">
+          <div class="controls">
+            <div class="field">Kiểu ánh xạ<div id="i-mode"></div></div>
+            <label class="field">Bộ nhớ chính<select id="i-mem"><option value="65536">64KB (16 bit)</option><option value="1048576">1MB (20 bit)</option><option value="16777216">16MB (24 bit)</option><option value="4294967296" selected>4GB (32 bit)</option></select></label>
+            <label class="field">Cache<select id="i-cache"><option value="8192">8KB</option><option value="16384">16KB</option><option value="65536">64KB</option><option value="262144" selected>256KB</option><option value="1048576">1MB</option></select></label>
+            <label class="field">Block<select id="i-block"><option>16</option><option selected>32</option><option>64</option></select></label>
+            <label class="field">Số way<select id="i-ways"><option>2</option><option selected>4</option><option>8</option></select></label>
+          </div>
+          <div class="controls" style="margin-top:10px">
+            <label class="field">Địa chỉ<input id="i-addr" value="0x12345678" style="width:200px"></label>
+            <button type="button" class="btn" id="i-rand">Địa chỉ ngẫu nhiên</button>
+            <span id="i-err" class="caption" aria-live="polite"></span>
+          </div>
+          <div class="ruler" id="i-ruler" style="margin-top:16px"></div>
+          <div class="stage stage--split-wide" style="margin-top:16px">
+            <div class="zone"><h3>Từ địa chỉ đến Line/Set</h3><div id="i-calc"></div></div>
+            <div class="zone"><h3>Vị trí trong cache</h3><div id="i-gauge"></div><div id="i-why"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="sec-j" aria-labelledby="hj" hidden>
+      <div class="sheet">
+        <header class="sheet__head">
+          <div class="sheet__title"><h2 id="hj">Bài tập: số bit của các trường địa chỉ</h2>
+            <p>Đề slide 49–52: bộ nhớ chính 4GB, cache 256KB, Line 32 byte. Làm từng bước cho ba kiểu ánh xạ.</p></div>
+          <div class="titleblock"><div><span>Tờ</span><b>J</b></div><div><span>Slide</span><b>43, 49–52</b></div><div><span>Quy ước</span><b>2<sup>10</sup> = K</b></div><div><span>Dạng</span><b>Trường địa chỉ</b></div></div>
+        </header>
+        <div class="sheet__body">
+          <div class="tabs" id="j-tabs"><button type="button" data-tab="j-main">Đề 4GB / 256KB / 32B (byte)</button><button type="button" data-tab="j-16">Ví dụ slide 43 (16 bit, theo word)</button><button type="button" data-tab="j-notes">Ghi chú về slide</button></div>
+          <div id="j-main">
+            <div class="controls" style="margin-bottom:12px">
+              <label class="field">Bộ nhớ chính<input id="j-mem" value="4GB" style="width:110px"></label>
+              <label class="field">Cache<input id="j-cache" value="256KB" style="width:110px"></label>
+              <label class="field">Line (byte)<input id="j-block" value="32" style="width:90px"></label>
+              <label class="field">Số way<input id="j-ways" value="4" style="width:80px"></label>
+              <button type="button" class="btn" id="j-apply">Tính lại</button>
+              <button type="button" class="btn btn--ghost" id="j-orig">Về đề gốc</button>
+            </div>
+            <div id="j-guided"></div>
+          </div>
+          <div id="j-16" hidden></div>
+          <div id="j-notes" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="sec-k" aria-labelledby="hk" hidden>
+      <div class="sheet">
+        <header class="sheet__head">
+          <div class="sheet__title"><h2 id="hk">Tự luyện ánh xạ cache</h2>
+            <p>Tính số Line, số Set, độ rộng các trường, hoặc tách một địa chỉ cụ thể.</p></div>
+          <div class="titleblock"><div><span>Tờ</span><b>K</b></div><div><span>Slide</span><b>40–52</b></div><div><span>Đề cố định</span><b>7</b></div><div><span>Ngẫu nhiên</span><b>có</b></div></div>
+        </header>
+        <div class="sheet__body"><div id="k-practice"></div></div>
+      </div>
+    </section>
+  </main>
+
+  <aside class="panel" aria-label="Giải thích" aria-live="polite"></aside>
+</div>
+<script src="assets/js/calc.js"></script>
+<script src="assets/js/common.js"></script>
+<script src="assets/js/cache-lab.js"></script>
+</body>
+</html>
